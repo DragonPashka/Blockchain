@@ -1,16 +1,25 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>BlockCheck</title>
-  </head>
-  <body>
-    <h1>Приветствуем в приложении BlockCheck</h1>
-    <p>Здесь вы можете проверить оригинальность любого файла или текста</p>
-    <button id="fileBtn">Upload file</button>
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-    </script>
-  </body>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>BlockCheck</title>
+        <link rel="stylesheet" href="css/bootstrap.min.css">
+        <script src="libs/jquery-3.3.1.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <h1>Приветствуем в приложении BlockCheck</h1>
+                    <p>Здесь вы можете проверить оригинальность любого файла или текста</p>
+                    <button type="button" class="btn btn-primary" id="fileBtn">Upload file</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            // You can also require other files to run in this process
+            require('./renderer.js')
+        </script>
+    </body>
 </html>
