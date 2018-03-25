@@ -2,6 +2,7 @@
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
 const fs = require('fs');
+const oDialog = require('electron').remote.dialog;
 
 //default headers used for all requests. There's probably no need to modify them
 const oHeadersDef = {
@@ -48,31 +49,55 @@ function HTTPSrequestWrapper(sHostname, sPath, sMethod, oHeaders, vData)
   });
 }
 
-function fileUpload(oEvent){
-    console.log(oEvent);
-    const oDialog = require('electron').remote.dialog;
-    var sHash = "hash";
-    //process files here
-    try
+/**
+@TODO clear queue/remove specific elements?
+*/
+function addToUpload(){
+    var oCheck = $("#showAddText"),
+        oUploadElem = $('<li class="list-group-item d-flex justify-content-between align-items-center"><span class="badge badge-primary badge-pill">&#10005</span></li>'),
+        sUploadElem = "";
+    if(oCheck.prop('checked'))
     {
-        oDialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles']}, (aPath) => {
-            //open given file by path
-            fs.readFile(aPath.toString() || aPath[0], 'utf8', (oErr, vData) => {
-                if (oErr)
-                {
-                    //smth's wrong with that file 
-                    throw oErr;
-                }
-                //get file contents here and make hash
-                console.log(vData);
-                HTTPSrequestWrapper("hostname", "path", "POST", oHeadersDef, sHash);
+        //user wants to upload plain text
+        let oTextArea = $("#plainText");
+        oCheck.prop('checked', false);
+        if(!oTextArea.val())
+        {
+            oDialog.showMessageBox({title:"Ошибка добавления", type: "warning", message:'Пустое поле для ввода текста'});
+            return
+        }
+        //do adding operation here
+        sUploadElem = oTextArea.text();
+        oTextArea.text('');
+    }
+    else
+    {
+        try
+        {
+            oDialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles, multiSelections']}, (vPath) => {
+                debugger
             });
-        });
+        }
+        catch(oError)
+        {
+            oDialog.showMessageBox({title:"Ошибка выбора файла", type: "error", message:`Ошибка открытия файла: ${oErr.message}`});
+        }
     }
-    catch(oError)
-    {
-        oDialog.showMessageBox({title:"Ошибка выбора файла", type: "error", message:`Ошибка открытия файла: ${oErr.message}`});
-    }
+    //$("uploadCount").text(`${$("uploadQueue").children().length} файлов`);
 }
 
-document.querySelector('#fileBtn').addEventListener('click', fileUpload);
+function fileUpload(oEvent){
+    //process files here
+    fs.readFile("filepath", 'utf8', (oErr, vData) => {
+        if (oErr)
+        {
+            //smth's wrong with that file 
+            throw oErr;
+        }
+        //get file contents here and make hash
+        console.log(vData);
+        HTTPSrequestWrapper("hostname", "path", "POST", oHeadersDef, sHash);
+    });
+}
+
+$('#addBtn').click(addToUpload);

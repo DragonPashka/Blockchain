@@ -1,0 +1,17 @@
+#showAddText:checked + textarea
+{
+    visibility: visible;
+}
+
+#uploadQueue > li
+{
+    text-overflow: ellipsis;
+}
+
+#plainText
+{
+    display: block;
+    margin: 1em auto;
+    visibility: hidden;
+    resize: none;
+}
