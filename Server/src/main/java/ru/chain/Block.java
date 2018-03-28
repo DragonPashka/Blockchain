@@ -2,6 +2,7 @@ package ru.chain;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import ru.controllers.FileUploadController;
 
 import java.io.UnsupportedEncodingException;
@@ -10,6 +11,7 @@ import java.util.Date;
 
 @Getter
 @Setter
+@Slf4j
 public class Block
 {
     private String hash;
@@ -20,6 +22,8 @@ public class Block
     private String hashFile;
 
     private long timeStamp;
+
+    private int nonce;
 
     public Block(String data, String previousHash, String hashFile) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
@@ -34,5 +38,16 @@ public class Block
     {
         String calculateHash = FileUploadController.createHash((previousHash + Long.toString(timeStamp) + data + hashFile).getBytes("UTF-8"));
         return calculateHash;
+    }
+
+    public void mineBlock(int difficulty) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    {
+        String target = new String(new char[difficulty]).replace('\0', '0');
+        while(!hash.substring( 0, difficulty).equals(target))
+        {
+            nonce ++;
+            hash = calculateHash();
+        }
+        log.info("Block Mined!!! : " + hash);
     }
 }
