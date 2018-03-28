@@ -9,12 +9,15 @@ import java.util.ArrayList;
 @Slf4j
 public class Chain
 {
-    private static ArrayList<Block> blocks = new ArrayList<Block>();
+    public static ArrayList<Block> blocks = new ArrayList<Block>();
+    public static int difficulty = 5;
 
     public static Boolean isChainValid() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         Block currentBlock;
         Block previousBlock;
+        String hashTarget = new String(new char[difficulty]).replace('\0', '0');
+
 
         //loop through blockchain to check hashes:
         for (int i = 1; i < blocks.size(); i++)

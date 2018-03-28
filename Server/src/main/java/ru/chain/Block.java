@@ -31,21 +31,23 @@ public class Block
         this.previousHash = previousHash;
         this.timeStamp = new Date().getTime();
         this.hashFile = hashFile;
-        this.hash=calculateHash();
+        this.hash = calculateHash();
     }
 
     public String calculateHash() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
-        String calculateHash = FileUploadController.createHash((previousHash + Long.toString(timeStamp) + data + hashFile).getBytes("UTF-8"));
+        String calculateHash = FileUploadController.createHash((previousHash + Long.toString(timeStamp) +
+                Integer.toString(nonce) + data + hashFile).getBytes("UTF-8"));
+
         return calculateHash;
     }
 
     public void mineBlock(int difficulty) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         String target = new String(new char[difficulty]).replace('\0', '0');
-        while(!hash.substring( 0, difficulty).equals(target))
+        while (!hash.substring(0, difficulty).equals(target))
         {
-            nonce ++;
+            nonce++;
             hash = calculateHash();
         }
         log.info("Block Mined!!! : " + hash);
