@@ -12,39 +12,18 @@ public class Chain
     public static ArrayList<Block> blocks = new ArrayList<Block>();
     public static int difficulty = 5;
 
-    public static Boolean isChainValid() throws UnsupportedEncodingException, NoSuchAlgorithmException
-    {
-        Block currentBlock;
-        Block previousBlock;
-        String hashTarget = new String(new char[difficulty]).replace('\0', '0');
-
-
-        //loop through blockchain to check hashes:
-        for (int i = 1; i < blocks.size(); i++)
-        {
-            currentBlock = blocks.get(i);
-            previousBlock = blocks.get(i - 1);
-            //compare registered hash and calculated hash:
-            if (!currentBlock.getHash().equals(currentBlock.calculateHash()))
-            {
-                log.info("Current Hashes not equal");
-                return false;
-            }
-            //compare previous hash and registered previous hash
-            if (!previousBlock.getHash().equals(currentBlock.getPreviousHash()))
-            {
-                log.info("Previous Hashes not equal");
-                return false;
-            }
-        }
-        return true;
-    }
-
+    /**
+     * added file early or not
+     * @param hashFile hash of file what need to check
+     * @return true if added file earle else false
+     * @throws UnsupportedEncodingException error if the system unsupported this encoding
+     * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
+     */
     public static Boolean isFileAdded(String hashFile) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         for (Block block: blocks)
         {
-            if(block.getHash().equals(hashFile))
+            if(block.getHashFile().equals(hashFile))
                 return true;
         }
         return false;

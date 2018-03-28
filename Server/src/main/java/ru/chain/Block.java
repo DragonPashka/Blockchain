@@ -34,6 +34,12 @@ public class Block
         this.hash = calculateHash();
     }
 
+    /**
+     * calculated hash of current block
+     * @return the string of hash
+     * @throws UnsupportedEncodingException error if the system unsupported this encoding
+     * @throws NoSuchAlgorithmException
+     */
     public String calculateHash() throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         String calculateHash = FileUploadController.createHash((previousHash + Long.toString(timeStamp) +
@@ -42,6 +48,12 @@ public class Block
         return calculateHash;
     }
 
+    /**
+     * create hash with current difficulty
+     * @param difficulty current difficulty
+     * @throws UnsupportedEncodingException error if the system unsupported this encoding
+     * @throws NoSuchAlgorithmException
+     */
     public void mineBlock(int difficulty) throws UnsupportedEncodingException, NoSuchAlgorithmException
     {
         String target = new String(new char[difficulty]).replace('\0', '0');
