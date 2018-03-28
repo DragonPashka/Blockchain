@@ -10,6 +10,8 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'idea'
 apply plugin: 'org.springframework.boot'
+apply plugin: 'war'
+
 
 repositories {
     mavenCentral()
@@ -22,4 +24,7 @@ dependencies {
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '1.5.10.RELEASE'
     compile 'org.projectlombok:lombok:1.16.18'
     testCompile 'junit:junit','org.springframework.boot:spring-boot-starter-test:1.5.1.RELEASE'
+}
+war {
+    archiveName = 'server.war'
 }
