@@ -9,9 +9,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.responses.ResponseJson;
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * @author Pozndyakov Pavel
@@ -33,21 +36,13 @@ public class FileUploadController
      */
 
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ResponseJson> uploadFile(@RequestParam("file") MultipartFile file) throws IOException
+    public ResponseEntity<ResponseJson> uploadFile(@RequestParam("file") MultipartFile file) throws IOException, NoSuchAlgorithmException
     {
-        File convertFile = new File("src/main/" + file.getOriginalFilename());
-        convertFile.createNewFile();
-        FileOutputStream outputStream = new FileOutputStream(convertFile);
-        outputStream.write(file.getBytes());
-        outputStream.close();
-        if (!convertFile.delete())
-        {
-            responseJson.setState("Error. Try to change the name of file");
-            responseJson.setHex(null);
-            log.error("Cannot delete the file");
-            return new ResponseEntity<>(responseJson, HttpStatus.BAD_REQUEST);
-        }
+        log.info("The post request:");
+        String hash=createHash(file.getBytes());
         responseJson.setState("Success");
+        responseJson.setHash(hash);
+        log.info("Successfully uploaded and created hash the file");
         return new ResponseEntity<ResponseJson>(responseJson, HttpStatus.OK);
     }
 
@@ -62,9 +57,15 @@ public class FileUploadController
     {
         responseJson.setState("Error "+ex);
         log.error(ex.toString());
-        responseJson.setHex(null);
+        responseJson.setHash(null);
         return new ResponseEntity<ResponseJson>(responseJson, HttpStatus.FORBIDDEN);
     }
 
+    private String createHash(byte[] bytes) throws NoSuchAlgorithmException
+    {
+        MessageDigest complete = MessageDigest.getInstance("MD5");
+        byte[] hash=complete.digest(bytes);
+        return DatatypeConverter.printHexBinary(hash);
+    }
 }
 

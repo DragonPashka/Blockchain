@@ -10,5 +10,5 @@ import org.springframework.stereotype.Component;
 public class ResponseJson
 {
     private String state;
-    private String hex;
+    private String hash;
 }
