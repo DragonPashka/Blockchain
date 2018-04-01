@@ -49,13 +49,39 @@ function HTTPSrequestWrapper(sHostname, sPath, sMethod, oHeaders, vData)
   });
 }
 
+function createUploadElem(vName)
+{
+    vName = Array.isArray(vName) ? vName : [vName];
+    return vName.map((sName)=>{
+        var oSpan = $('<span>', {
+            "class":"badge badge-primary badge-pill",
+            on: {
+                click: function(oEvent){
+                    oDialog.showMessageBox({title:"Удаление из очереди", type: "question", message:`Вы хотите удалить файл ${sName} из очереди загрузки?`, buttons:["Да", "Отмена"], cancelId:1}, function(nResponse){
+                        if(!nResponse)
+                        {
+                            $(this).parent().remove();          
+                            $("#uploadCount").text(`${$("#uploadQueue").children().length} файлов`);
+                        }
+                    }.bind(this));
+                }
+            },
+            html:"&#10005"
+        });
+        var oElem = $('<li>',{
+            "class":"list-group-item d-flex justify-content-between align-items-center",
+            text:sName
+        });
+        return oElem.append(oSpan);
+    });
+}
+
 /**
 @TODO clear queue/remove specific elements?
 */
 function addToUpload(){
     var oCheck = $("#showAddText"),
-        oUploadElem = $('<li class="list-group-item d-flex justify-content-between align-items-center"><span class="badge badge-primary badge-pill">&#10005</span></li>'),
-        sUploadElem = "";
+        oUpQueue = $("#uploadQueue");
     if(oCheck.prop('checked'))
     {
         //user wants to upload plain text
@@ -67,23 +93,24 @@ function addToUpload(){
             return
         }
         //do adding operation here
-        sUploadElem = oTextArea.text();
-        oTextArea.text('');
+        oUpQueue.append(createUploadElem(oTextArea.val()));
+        $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
+        oTextArea.val('');
     }
     else
     {
         try
         {
-            oDialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles, multiSelections']}, (vPath) => {
-                debugger
+            oDialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles', 'multiSelections']}, (aPath) => {
+                oUpQueue.append(createUploadElem(aPath || []));
+                $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
             });
         }
         catch(oError)
         {
             oDialog.showMessageBox({title:"Ошибка выбора файла", type: "error", message:`Ошибка открытия файла: ${oErr.message}`});
         }
-    }
-    //$("uploadCount").text(`${$("uploadQueue").children().length} файлов`);
+    };
 }
 
 function fileUpload(oEvent){
