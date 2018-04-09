@@ -1,55 +1,11 @@
 // This file is required by the index.html file and will
 // be executed in the renderer process for that window.
 // All of the Node.js APIs are available in this process.
-const fs = require('fs');
 const oDialog = require('electron').remote.dialog;
 
-//default headers used for all requests. There's probably no need to modify them
-const oHeadersDef = {
-  'accept-language': 'en-US,en;q=0.8',
-  'content-type': 'application/x-www-form-urlencoded',
-  'accept': 'application/json'
-};
+const { requestWrapper, fileUpload } = require('./js/handlers');
 
-/*wrapper function that handles https requests. Returns a promise since requests are async. accepts hostname (hostname string should not contain http/https in the beginning), path (with a slash in the beginning), request method, headers (use the default ones above and data that needs to be passed to request (have to be already querystringifed))
-*/
-function HTTPSrequestWrapper(sHostname, sPath, sMethod, oHeaders, vData)
-{
-    return new Promise((resolve, reject) => {
-      const oReq = https.request({
-          hostname: sHostname,
-          port: 443,
-          path: sPath,
-          method: sMethod,
-          headers: oHeaders
-        }, (oRes) => {
-          oRes.setEncoding('utf8');
-          let oFinObj = {};
-          oRes.on('data', (chunk) => {
-            //receiving response data here
-            oFinObj.data = chunk;
-          });
-          oRes.on('end', () => {
-            //response status code and headers are being received here
-            finObj.headers = oRes.headers;
-            finObj.statusCode = oRes.statusCode;
-            //resolving promise with object, containing all relevant response data
-            resolve(finObj);
-          });
-      });
-      oReq.on('error', (e) => {
-        //something went wrong with forming or sending the request
-        //tip: check function arguments
-        reject(`problem with request: ${e.message}`);
-      });
-      //some requests may not have data to pass, so there's a check for it
-      if(vData)
-        oReq.write(vData);
-      oReq.end();
-  });
-}
-
-function createUploadElem(vName)
+function createUploadElem(vName, bIsPath)
 {
     vName = Array.isArray(vName) ? vName : [vName];
     return vName.map((sName)=>{
@@ -69,15 +25,14 @@ function createUploadElem(vName)
             html:"&#10005"
         });
         var oElem = $('<li>',{
-            "class":"list-group-item d-flex justify-content-between align-items-center",
-            text:sName
+            "class":"list-group-item d-flex justify-content-between align-items-center"
         });
-        return oElem.append(oSpan);
+        return oElem.append(`<span class="d-inline-block text-truncate">${sName}</span>`).append(oSpan).data("isPath", bIsPath);
     });
 }
 
 /**
-@TODO clear queue/remove specific elements?
+@TODO clear queue
 */
 function addToUpload(){
     var oCheck = $("#showAddText"),
@@ -93,7 +48,7 @@ function addToUpload(){
             return
         }
         //do adding operation here
-        oUpQueue.append(createUploadElem(oTextArea.val()));
+        oUpQueue.append(createUploadElem(oTextArea.val(), false));
         $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
         oTextArea.val('');
     }
@@ -102,7 +57,7 @@ function addToUpload(){
         try
         {
             oDialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles', 'multiSelections']}, (aPath) => {
-                oUpQueue.append(createUploadElem(aPath || []));
+                oUpQueue.append(createUploadElem(aPath || [], true));
                 $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
             });
         }
@@ -113,18 +68,5 @@ function addToUpload(){
     };
 }
 
-function fileUpload(oEvent){
-    //process files here
-    fs.readFile("filepath", 'utf8', (oErr, vData) => {
-        if (oErr)
-        {
-            //smth's wrong with that file 
-            throw oErr;
-        }
-        //get file contents here and make hash
-        console.log(vData);
-        HTTPSrequestWrapper("hostname", "path", "POST", oHeadersDef, sHash);
-    });
-}
-
 $('#addBtn').click(addToUpload);
+$('#checkBtn').click(fileUpload.bind($('#checkBtn'), $("#uploadQueue")));

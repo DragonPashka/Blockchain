@@ -3,11 +3,6 @@
     visibility: visible;
 }
 
-#uploadQueue > li
-{
-    text-overflow: ellipsis;
-}
-
 #plainText
 {
     display: block;
