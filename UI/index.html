@@ -6,8 +6,9 @@
         <title>BlockCheck</title>
         <link rel="stylesheet" href="css/bootstrap.min.css">
         <link rel="stylesheet" href="css/main.css">
-        <script src="libs/jquery-3.3.1.min.js"></script>
-        <script>window.$ = window.jQuery = require('./libs/jquery-3.3.1.min.js');</script>
+        <script>window.$ = window.jQuery = require('jquery');
+            require('./libs/bootstrap.min.js');
+        </script>
     </head>
     <body>
         <div class="container">
@@ -28,6 +29,26 @@
                         <label for="showAddText">Добавить текст</label>
                         <input id="showAddText" type="checkbox">
                         <textarea id="plainText" rows="8" cols="60"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
+
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalDialogTitle">Результаты проверки файлов</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <ul class="list-group list-group-flush">
+                        </ul>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
                     </div>
                 </div>
             </div>

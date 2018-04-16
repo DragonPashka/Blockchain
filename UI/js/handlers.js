@@ -1,4 +1,4 @@
-const https = require('https'),
+const http = require('http'),
       fs = require('fs');
 //default headers used for all requests. There's probably no need to modify them
 const oDefHeaders = {
@@ -9,56 +9,71 @@ const oDefHeaders = {
 
 /*wrapper function that handles https requests. Returns a promise since requests are async. accepts hostname (hostname string should not contain http/https in the beginning), path (with a slash in the beginning), request method, headers (use the default ones above and data that needs to be passed to request (have to be already querystringifed))
 */
-exports.requestWrapper = function (sHostname, sPath, sMethod, oHeaders, vData)
+function requestWrapper({hostname, path, method, headers, port}, vData)
 {
     return new Promise((resolve, reject) => {
-      const oReq = https.request({
-          hostname: sHostname,
-          port: 443,
-          path: sPath,
-          method: sMethod,
-          headers: oHeaders
-        }, (oRes) => {
-          oRes.setEncoding('utf8');
-          let oFinObj = {};
-          oRes.on('data', (chunk) => {
-            //receiving response data here
-            oFinObj.data = chunk;
-          });
-          oRes.on('end', () => {
-            //response status code and headers are being received here
-            finObj.headers = oRes.headers;
-            finObj.statusCode = oRes.statusCode;
-            //resolving promise with object, containing all relevant response data
-            resolve(finObj);
-          });
-      });
-      oReq.on('error', (e) => {
-        //something went wrong with forming or sending the request
-        //tip: check function arguments
-        reject(`problem with request: ${e.message}`);
-      });
-      //some requests may not have data to pass, so there's a check for it
-      if(vData)
-        oReq.write(vData);
-      oReq.end();
-  });
+        const sName = JSON.stringify(vData.path || vData),
+              boundary = "xxxxxxxxxx";
+        let data = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\n`;
+        data += "Content-Type:application/octet-stream\r\n\r\n";
+        fs.readFile(vData.path, (oErr, oContent) => {
+            var payload;
+            if(oErr){
+                console.error(err);
+                payload = `${vData}\r\n--${boundary}\r\n`;
+            }
+            payload = Buffer.concat([
+                Buffer.from(data, "utf8"),
+                new Buffer(oContent, 'binary'),
+                Buffer.from(`\r\n--${boundary}\r\n`, "utf8"),
+            ]);
+            const oReq = http.request({
+                hostname: hostname,
+                port: port || 80,
+                path: path,
+                method: method || "POST",
+                headers: {"Content-Type": `multipart/form-data; boundary=${boundary}`}
+            }, (oRes) => {
+                oRes.setEncoding('utf8');
+                let oFinObj = {};
+                oRes.on('data', (chunk) => {
+                    //receiving response data here
+                    oFinObj.data = chunk;
+                });
+                oRes.on('end', function(){
+                    //response status code and headers are being received here
+                    oFinObj.headers = oRes.headers;
+                    oFinObj.statusCode = oRes.statusCode;
+                    oFinObj.fileName = JSON.parse(sName);
+                    //resolving promise with object, containing all relevant response data
+                    resolve(oFinObj);
+                });
+            });
+            oReq.on('error', (e) => {
+                //something went wrong with forming or sending the request
+                reject(`problem with request: ${e.message}`);
+            });
+            oReq.write(payload);
+            oReq.end();
+        });
+    });
 }
 
-exports.fileUpload = function(oQueue){
+exports.fileUpload = function(oQueue, fResultCb){
     var aFiles = oQueue.children().map(function(iNum, oElem){
         var oJqElem = $(oElem),
             sFile = oJqElem.children().first().text();
         return oJqElem.data("isPath") ? fs.createReadStream(sFile) : sFile;
     });
-    console.log("");
-    Promise.all(aFiles.map(vElem => {
+    Promise.all(aFiles.toArray().map(vElem => {
         if(typeof vElem === 'object')
         {
-            return requestWrapper("localhost", "/test", "POST", Object.assign({}, oDefHeaders, {'Content-Disposition': `attachment; filename=${vElem.path}`}), vElem);
+            const sName = JSON.stringify(vElem.path);
+            return requestWrapper({hostname:"localhost", path:"/upload", method:"POST", port:8080, headers: Object.assign({}, oDefHeaders, {'Content-Disposition': `attachment; filename=${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}`})}, vElem);
         }
-        return requestWrapper("localhost", "/test", "POST", {'accept-language': 'en-US,en;q=0.8', 'content-type':"text/plain", 'accept':"application/json"}, vElem);
+        return requestWrapper({hostname:"localhost", path:"/upload", method:"POST", port:8080, headers: {'accept-language': 'en-US,en;q=0.8', 'content-type':"text/plain", 'accept':"application/json"}}, vElem);
     })).then(aResults => {
-        debugger
+        console.log(aResults);
+        fResultCb(aResults);
     });
 }

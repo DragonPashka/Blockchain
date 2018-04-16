@@ -31,6 +31,12 @@ function createUploadElem(vName, bIsPath)
     });
 }
 
+function clearQueue()
+{
+    $("#uploadQueue").empty();
+    $("#uploadCount").text(`${$("#uploadQueue").children().length} файлов`);
+}
+
 /**
 @TODO clear queue
 */
@@ -68,5 +74,23 @@ function addToUpload(){
     };
 }
 
+function showReslts(aResults)
+{
+    const oDialog = $("#modalDialog"),
+          oDialogBody = $("#modalDialog .list-group");
+    oDialog.on('hidden.bs.modal', function (oEvent) {
+        oDialogBody.empty();
+    });
+    aResults.forEach((oElem)=>{
+        var oSpan = $('<span>', {
+            "class":"badge badge-primary badge-pill",
+            text: oElem.statusCode
+        });
+        oDialogBody.append($('<li class="list-group-item d-flex justify-content-between align-items-center"></li>').append(`<span class="d-inline-block text-truncate">${oElem.fileName}</span>`).append(oSpan));
+    });
+    oDialog.modal('show');
+    clearQueue();
+}
+
 $('#addBtn').click(addToUpload);
-$('#checkBtn').click(fileUpload.bind($('#checkBtn'), $("#uploadQueue")));
+$('#checkBtn').click(fileUpload.bind($('#checkBtn'), $("#uploadQueue"), showReslts));
