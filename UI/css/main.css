@@ -10,3 +10,8 @@
     visibility: hidden;
     resize: none;
 }
+
+.badge-delete
+{
+    cursor: pointer;
+}

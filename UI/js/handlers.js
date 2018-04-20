@@ -1,5 +1,6 @@
 const http = require('http'),
-      fs = require('fs');
+      fs = require('fs'),
+      { URL } = require('url');
 //default headers used for all requests. There's probably no need to modify them
 const oDefHeaders = {
     'accept-language': 'en-US,en;q=0.8',
@@ -9,18 +10,22 @@ const oDefHeaders = {
 
 /*wrapper function that handles https requests. Returns a promise since requests are async. accepts hostname (hostname string should not contain http/https in the beginning), path (with a slash in the beginning), request method, headers (use the default ones above and data that needs to be passed to request (have to be already querystringifed))
 */
-function requestWrapper({hostname, path, method, headers, port}, vData)
+function requestWrapper({hostname, path, method, headers, port}, sData)
 {
     return new Promise((resolve, reject) => {
-        const sName = JSON.stringify(vData.path || vData),
+        //stringifying in order to correctly get file name from path later
+        const sName = JSON.stringify(sData),
               boundary = "xxxxxxxxxx";
-        let data = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\n`;
-        data += "Content-Type:application/octet-stream\r\n\r\n";
-        fs.readFile(vData.path, (oErr, oContent) => {
-            var payload;
+        //encoding also helps
+        let data = `--${boundary}\r\n
+Content-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\n
+Content-Type:application/octet-stream\r\n\r\n`;
+        fs.readFile(sData, (oErr, oContent) => {
+            var payload, oGlobalErr;
             if(oErr){
+                //if we got an error, it's likely a plain text, so just put it in
                 console.error(err);
-                payload = `${vData}\r\n--${boundary}\r\n`;
+                payload = `${sData}\r\n--${boundary}\r\n`;
             }
             payload = Buffer.concat([
                 Buffer.from(data, "utf8"),
@@ -32,12 +37,12 @@ function requestWrapper({hostname, path, method, headers, port}, vData)
                 port: port || 80,
                 path: path,
                 method: method || "POST",
-                headers: {"Content-Type": `multipart/form-data; boundary=${boundary}`}
+                headers: headers || {"Content-Type": `multipart/form-data; boundary=${boundary}`}
             }, (oRes) => {
                 oRes.setEncoding('utf8');
                 let oFinObj = {};
                 oRes.on('data', (chunk) => {
-                    //receiving response data here
+                    //receiving response data here 
                     oFinObj.data = chunk;
                 });
                 oRes.on('end', function(){
@@ -49,9 +54,10 @@ function requestWrapper({hostname, path, method, headers, port}, vData)
                     resolve(oFinObj);
                 });
             });
-            oReq.on('error', (e) => {
+
+            oReq.on('error', (oErr) => {
                 //something went wrong with forming or sending the request
-                reject(`problem with request: ${e.message}`);
+                reject(oErr);
             });
             oReq.write(payload);
             oReq.end();
@@ -60,20 +66,13 @@ function requestWrapper({hostname, path, method, headers, port}, vData)
 }
 
 exports.fileUpload = function(oQueue, fResultCb){
-    var aFiles = oQueue.children().map(function(iNum, oElem){
-        var oJqElem = $(oElem),
-            sFile = oJqElem.children().first().text();
-        return oJqElem.data("isPath") ? fs.createReadStream(sFile) : sFile;
-    });
-    Promise.all(aFiles.toArray().map(vElem => {
-        if(typeof vElem === 'object')
-        {
-            const sName = JSON.stringify(vElem.path);
-            return requestWrapper({hostname:"localhost", path:"/upload", method:"POST", port:8080, headers: Object.assign({}, oDefHeaders, {'Content-Disposition': `attachment; filename=${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}`})}, vElem);
-        }
-        return requestWrapper({hostname:"localhost", path:"/upload", method:"POST", port:8080, headers: {'accept-language': 'en-US,en;q=0.8', 'content-type':"text/plain", 'accept':"application/json"}}, vElem);
-    })).then(aResults => {
+    var aFiles = oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(),
+        oURL = localStorage && new URL(localStorage.getItem("serverURL"));
+    Promise.all(aFiles.map(sElem => requestWrapper({hostname:oURL.hostname, path:oURL.pathname, method:"POST", port:oURL.port}, sElem))).then(aResults => {
         console.log(aResults);
         fResultCb(aResults);
+    }, (oPromErr)=>{
+        fResultCb(oPromErr);
+        debugger
     });
 }
