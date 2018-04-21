@@ -11,6 +11,7 @@
         </script>
     </head>
     <body>
+        <!--main container that holds all the buutons, titles and lists-->
         <div class="container">
             <div class="row">
                 <div class="col-12 text-center">
@@ -33,6 +34,7 @@
                 </div>
             </div>
         </div>
+        <!--pre-created dialog for showing final results of the check-->
         <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -52,6 +54,7 @@
                 </div>
             </div>
         </div>
+        <!--pre-created dialog for changing server address-->
         <div class="modal fade" id="urlDialog" tabindex="-1" role="dialog" aria-labelledby="urlDialogTitle" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -71,7 +74,6 @@
             </div>
         </div>
         <script>
-            // You can also require other files to run in this process
             require('./renderer.js')
         </script>
     </body>

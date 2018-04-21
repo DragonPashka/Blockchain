@@ -1,21 +1,19 @@
 {
-  "name": "electron-quick-start",
+  "name": "Blockcheck",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
+  "description": "A unique originality testing app",
   "main": "main.js",
   "scripts": {
     "start": "electron ."
   },
-  "repository": "https://github.com/electron/electron-quick-start",
   "keywords": [
     "Electron",
-    "quick",
-    "start",
-    "tutorial",
-    "demo"
+    "BLockchain",
+    "originality",
+    "authorship",
+    "check"
   ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
+  "author": "RevolLol",
   "devDependencies": {
     "electron": "~1.8.2"
   },

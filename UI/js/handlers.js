@@ -1,15 +1,18 @@
 const http = require('http'),
       fs = require('fs'),
       { URL } = require('url');
-//default headers used for all requests. There's probably no need to modify them
-const oDefHeaders = {
-    'accept-language': 'en-US,en;q=0.8',
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json'
-};
 
-/*wrapper function that handles https requests. Returns a promise since requests are async. accepts hostname (hostname string should not contain http/https in the beginning), path (with a slash in the beginning), request method, headers (use the default ones above and data that needs to be passed to request (have to be already querystringifed))
-*/
+/**
+ * @function requestWrapper
+ * @description Wrapper function that handles http requests. Internal one not for export
+ * @param {string} hostname
+ * @param {string} path
+ * @param {string} method - http method to be used in request
+ * @param {Object} headers
+ * @param {number} port
+ * @param {string} sData - path to file or plain text as a request content
+ * @returns {Promise} - Promisified async http request
+ */
 function requestWrapper({hostname, path, method, headers, port}, sData)
 {
     return new Promise((resolve, reject) => {
@@ -17,16 +20,15 @@ function requestWrapper({hostname, path, method, headers, port}, sData)
         const sName = JSON.stringify(sData),
               boundary = "xxxxxxxxxx";
         //encoding also helps
-        let data = `--${boundary}\r\n
-Content-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\n
-Content-Type:application/octet-stream\r\n\r\n`;
+        let data = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\nContent-Type:application/octet-stream\r\n\r\n`;
         fs.readFile(sData, (oErr, oContent) => {
             var payload, oGlobalErr;
             if(oErr){
                 //if we got an error, it's likely a plain text, so just put it in
-                console.error(err);
-                payload = `${sData}\r\n--${boundary}\r\n`;
+                console.error(oErr);
+                oContent = sData;
             }
+            //creating binary buffer from parts
             payload = Buffer.concat([
                 Buffer.from(data, "utf8"),
                 new Buffer(oContent, 'binary'),
@@ -65,9 +67,14 @@ Content-Type:application/octet-stream\r\n\r\n`;
     });
 }
 
-exports.fileUpload = function(oQueue, fResultCb){
-    var aFiles = oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(),
-        oURL = localStorage && new URL(localStorage.getItem("serverURL"));
+/**
+ * @function fileUpload
+ * @description Creates promises for all files and handles the final result when all promises are finished. It is available for requiring in other scripts
+ * @param {string[]} aFiles - Paths of plain texts
+ * @param {function} fResultCb - Callback to be called on promises error or success 
+ */
+exports.fileUpload = function(aFiles, fResultCb){
+    var oURL = localStorage && new URL(localStorage.getItem("serverURL"));
     Promise.all(aFiles.map(sElem => requestWrapper({hostname:oURL.hostname, path:oURL.pathname, method:"POST", port:oURL.port}, sElem))).then(aResults => {
         console.log(aResults);
         fResultCb(aResults);

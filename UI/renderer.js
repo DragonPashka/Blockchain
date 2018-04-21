@@ -1,11 +1,14 @@
-// This file is required by the index.html file and will
-// be executed in the renderer process for that window.
-// All of the Node.js APIs are available in this process.
+/**
+ * requiring all electrons necessary electron modules and custom handlers here 
+ */
 const {remote} = require('electron'),
       {Menu, MenuItem, dialog} = remote,
       { requestWrapper, fileUpload } = require('./js/handlers'),
       oMenu = new Menu();
 
+/**
+ * configuring global context menu options with queue clear and server address change
+ */
 oMenu.append(new MenuItem({label: 'Очистить очередь', click: () => {
     dialog.showMessageBox({title:"Очистить очередь", type: "question", message:"Вы уверены, что хотите очистить очередь загрузки?", buttons:["Да", "Отмена"], cancelId:1}, function(nResponse){
         if(!nResponse)
@@ -27,10 +30,19 @@ oMenu.append(new MenuItem({label: 'Изменить адрес сервера д
     oURLDialog.modal('show');
 }}));
 
+/**
+ * there's no server address on the first app launch, so we set it manually here
+ */
 if(!localStorage.getItem("serverURL"))
     localStorage.setItem("serverURL", "http://localhost:8080/upload");
 
-function createUploadElem(vName, bIsPath)
+/**
+ * @function createUploadElem
+ * @description Creates an array of list elements from file paths or texts
+ * @param {(string|string[])} vName - File name or text for displaying in the list
+ * @returns {jQuery[]} Array of jQuery virtual DOM nodes
+ */
+function createUploadElem(vName)
 {
     vName = Array.isArray(vName) ? vName : [vName];
     return vName.map((sName)=>{
@@ -52,19 +64,28 @@ function createUploadElem(vName, bIsPath)
         var oElem = $('<li>',{
             "class":"list-group-item d-flex justify-content-between align-items-center"
         });
-        return oElem.append(`<span class="d-inline-block text-truncate">${sName}</span>`).append(oSpan).data("isPath", bIsPath);
+        return oElem.append(`<span class="d-inline-block text-truncate">${sName}</span>`).append(oSpan);
     });
 }
 
+/**
+ * @function clearQueue
+ * @description Removes all upload elements and resets the file counter
+ */
 function clearQueue()
 {
     $("#uploadQueue").empty();
     $("#uploadCount").text(`${$("#uploadQueue").children().length} файлов`);
 }
 
+/**
+ * @function addToUpload
+ * @description Handles user's action on clicking the add button. Watches checkbox state and acts accordingly
+ */
 function addToUpload(){
     var oCheck = $("#showAddText"),
         oUpQueue = $("#uploadQueue");
+    //user wants to upload plain text instead of file if checkbox is checked
     if(oCheck.prop('checked'))
     {
         //user wants to upload plain text
@@ -75,29 +96,37 @@ function addToUpload(){
             dialog.showMessageBox({title:"Ошибка добавления", type: "warning", message:'Пустое поле для ввода текста'});
             return
         }
-        //do adding operation here
-        oUpQueue.append(createUploadElem(oTextArea.val(), false));
+        //doing adding operation here
+        oUpQueue.append(createUploadElem(oTextArea.val()));
         $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
         oTextArea.val('');
     }
     else
     {
+        //user simply adds one or multiple files to upload queue through native system selection dialog
         try
         {
             dialog.showOpenDialog({title:"Выберите файл", properties: ['openFile', 'showHiddenFiles', 'multiSelections']}, (aPath) => {
-                oUpQueue.append(createUploadElem(aPath || [], true));
+                oUpQueue.append(createUploadElem(aPath || []));
                 $("#uploadCount").text(`${oUpQueue.children().length} файлов`);
             });
         }
         catch(oError)
         {
+            //dialog throws an error in case smth went wrong, so we need to catch it here
             dialog.showMessageBox({title:"Ошибка выбора файла", type: "error", message:`Ошибка открытия файла: ${oErr.message}`});
         }
     };
 }
 
+/**
+ * @function showReslts
+ * @description displays final results after server responded for all requests sent
+ * @param {Error|Object[]} vResults - File check results from server. Might be anything really, so there's a check for an Error
+ */
 function showReslts(vResults)
 {
+    //getting predefined bootstrap dialog in order not to create the whole structure every time
     const oResDialog = $("#modalDialog"),
           dialogBody = oResDialog.find(".modal-body"),
           dialogList = oResDialog.find(".list-group");
@@ -108,9 +137,18 @@ function showReslts(vResults)
     else
     {
         vResults.forEach((oElem)=>{
-            var oSpan = $('<span>', {
-                "class":"badge badge-primary badge-pill",
-                text: oElem.statusCode
+            var bRes = !!oElem.hash,
+                oSpan = $('<span>', {
+                    //displaydifferent badge colors and symbols inside depending on results received
+                    "class":`badge badge-${bRes ? 'success' : 'danger'} badge-pill`,
+                    html: () => {
+                        
+                        if(oElem.statusCode == 200)
+                        {
+                            return bRes ? "&#10003" : "&#10060"
+                        }
+                        return oElem.statusCode
+                    } 
             });
             dialogList.append($('<li class="list-group-item d-flex justify-content-between align-items-center"></li>').append(`<span class="d-inline-block text-truncate">${oElem.fileName}</span>`).append(oSpan));
         });
@@ -119,15 +157,18 @@ function showReslts(vResults)
     oResDialog.modal('show');
 }
 
+/**
+ * Attaching various event handlers to elements
+*/
 $('#addBtn').click(addToUpload);
 $('#checkBtn').click(()=>{
     var oQueue = $("#uploadQueue");
-    if(!$.trim($("#uploadQueue").html()))
+    if(!$.trim(oQueue.html()))
     {
         dialog.showMessageBox({title:"Ошибка загрузки", type: "warning", message:'Нет выбранных файлов'});
         return
     }
-    fileUpload($("#uploadQueue"), showReslts);
+    fileUpload(oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(), showReslts);
 });
 $(window).contextmenu((oEvent) => {
     oEvent.preventDefault();
