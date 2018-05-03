@@ -21,7 +21,7 @@
                     </div>
                     <div>
                         <p>Очередь загрузки: <span id="uploadCount">нет выбранных файлов</span></p>
-                        <ul id="uploadQueue" class="list-group list-group-flush">
+                        <ul id="uploadQueue" class="list-group list-group-flush mb-2">
                         </ul>
                     </div>
                     <div>
@@ -34,7 +34,7 @@
                 </div>
             </div>
         </div>
-        <!--pre-created dialog for showing final results of the check-->
+        <!--pre-defined dialog for showing final results of the check-->
         <div class="modal fade" id="modalDialog" tabindex="-1" role="dialog" aria-labelledby="modalDialogTitle" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -54,7 +54,7 @@
                 </div>
             </div>
         </div>
-        <!--pre-created dialog for changing server address-->
+        <!--pre-defined dialog for changing server address-->
         <div class="modal fade" id="urlDialog" tabindex="-1" role="dialog" aria-labelledby="urlDialogTitle" aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
@@ -69,6 +69,23 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary" data-dismiss="modal">Ок</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--pre-defined dialog for showing progress bar-->
+        <div class="modal fade" id="progressDialog" tabindex="-1" role="dialog" aria-labelledby="progressDialogTitle" aria-hidden="true" 
+             data-backdrop="static"
+             data-keyboard="false">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="progressDialogTitle">Идет загрузка и обработка файлов</h5>
+                    </div>
+                    <div class="modal-body">
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100"></div>
+                        </div>
                     </div>
                 </div>
             </div>

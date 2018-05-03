@@ -62,7 +62,7 @@ function createUploadElem(vName)
             html:"&#10005"
         });
         var oElem = $('<li>',{
-            "class":"list-group-item d-flex justify-content-between align-items-center"
+            "class":"list-group-item d-flex justify-content-between align-items-center py-4"
         });
         return oElem.append(`<span class="d-inline-block text-truncate">${sName}</span>`).append(oSpan);
     });
@@ -91,9 +91,11 @@ function addToUpload(){
         //user wants to upload plain text
         let oTextArea = $("#plainText");
         oCheck.prop('checked', false);
-        if(!oTextArea.val())
+        //cutting leading and trailing whitespaces 
+        if(!$.trim(oTextArea.val()))
         {
             dialog.showMessageBox({title:"Ошибка добавления", type: "warning", message:'Пустое поле для ввода текста'});
+            oTextArea.val("");
             return
         }
         //doing adding operation here
@@ -142,19 +144,19 @@ function showReslts(vResults)
                     //displaydifferent badge colors and symbols inside depending on results received
                     "class":`badge badge-${bRes ? 'success' : 'danger'} badge-pill`,
                     html: () => {
-                        
+
                         if(oElem.statusCode == 200)
                         {
                             return bRes ? "&#10003" : "&#10060"
                         }
                         return oElem.statusCode
                     } 
-            });
-            dialogList.append($('<li class="list-group-item d-flex justify-content-between align-items-center"></li>').append(`<span class="d-inline-block text-truncate">${oElem.fileName}</span>`).append(oSpan));
+                });
+            dialogList.append($('<li class="list-group-item d-flex justify-content-between align-items-center py-4"></li>').append(`<span class="d-inline-block text-truncate">${oElem.fileName}</span>`).append(oSpan));
         });
         clearQueue();
     }
-    oResDialog.modal('show');
+    $("#progressDialog").modal('hide');
 }
 
 /**
@@ -168,6 +170,9 @@ $('#checkBtn').click(()=>{
         dialog.showMessageBox({title:"Ошибка загрузки", type: "warning", message:'Нет выбранных файлов'});
         return
     }
+    $("#progressDialog").on('hidden.bs.modal', function (e) {
+        $("#modalDialog").modal('show');
+    }).modal('show');
     fileUpload(oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(), showReslts);
 });
 $(window).contextmenu((oEvent) => {
