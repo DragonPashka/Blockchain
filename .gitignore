@@ -52,3 +52,4 @@ deploy
 gradle*
 settings.gradle
 UI/node_modules
+*.asar
