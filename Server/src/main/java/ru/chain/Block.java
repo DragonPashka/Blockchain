@@ -3,8 +3,9 @@ package ru.chain;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import ru.controllers.FileUploadController;
+import ru.controller.FileUploadService;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
@@ -25,7 +26,7 @@ public class Block
 
     private int nonce;
 
-    public Block(String data, String previousHash, String hashFile) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public Block(String data, String previousHash, String hashFile) throws IOException, NoSuchAlgorithmException
     {
         this.data = data;
         this.previousHash = previousHash;
@@ -40,9 +41,9 @@ public class Block
      * @throws UnsupportedEncodingException error if the system unsupported this encoding
      * @throws NoSuchAlgorithmException
      */
-    public String calculateHash() throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public String calculateHash() throws IOException, NoSuchAlgorithmException
     {
-        String calculateHash = FileUploadController.createHash((previousHash + Long.toString(timeStamp) +
+        String calculateHash = FileUploadService.createHashFromByte((previousHash + Long.toString(timeStamp) +
                 Integer.toString(nonce) + data + hashFile).getBytes("UTF-8"));
 
         return calculateHash;
@@ -54,7 +55,7 @@ public class Block
      * @throws UnsupportedEncodingException error if the system unsupported this encoding
      * @throws NoSuchAlgorithmException
      */
-    public void mineBlock(int difficulty) throws UnsupportedEncodingException, NoSuchAlgorithmException
+    public void mineBlock(int difficulty) throws IOException, NoSuchAlgorithmException
     {
         String target = new String(new char[difficulty]).replace('\0', '0');
         while (!hash.substring(0, difficulty).equals(target))

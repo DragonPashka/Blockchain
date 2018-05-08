@@ -15,7 +15,7 @@ public class Chain
     /**
      * added file early or not
      * @param hashFile hash of file what need to check
-     * @return true if added file earle else false
+     * @return true if added file early else false
      * @throws UnsupportedEncodingException error if the system unsupported this encoding
      * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
      */
