@@ -43,7 +43,8 @@ public class Block
      */
     public String calculateHash() throws IOException, NoSuchAlgorithmException
     {
-        String calculateHash = FileUploadService.createHashFromByte((previousHash + Long.toString(timeStamp) +
+        FileUploadService fileUploadService=new FileUploadService();
+        String calculateHash = fileUploadService.createHashFromByte((previousHash + Long.toString(timeStamp) +
                 Integer.toString(nonce) + data + hashFile).getBytes("UTF-8"));
 
         return calculateHash;

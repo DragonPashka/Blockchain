@@ -1,17 +1,18 @@
 package ru.application;
 
-import org.junit.runner.RunWith;
 import org.springframework.boot.SpringApplication;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import ru.responses.ResponseJson;
 
-@RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(locations="classpath:test.properties")
-
+@SpringBootApplication
+@ComponentScan(basePackages = {"ru.controller","ru.responses" ,"ru.chain"})
 public class ApplicationTest
 {
     public static void main(String[] args)
     {
         SpringApplication.run(ApplicationTest.class, args)  ;
     }
+
 }

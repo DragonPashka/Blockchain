@@ -2,7 +2,6 @@ package ru.controller;
 
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,7 +19,7 @@ public class FileUploadService
      * @return the string of hash
      * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
      */
-    public static String createHashFromFile(String name) throws NoSuchAlgorithmException, IOException
+    public String createHashFromFile(String name) throws NoSuchAlgorithmException, IOException
     {
         Path path = Paths.get(name);
         return createHashFromByte(Files.readAllBytes(path));
@@ -34,7 +33,7 @@ public class FileUploadService
      * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
      */
 
-    public static String createHashFromByte(byte[] bytes) throws NoSuchAlgorithmException, IOException
+    public String createHashFromByte(byte[] bytes) throws NoSuchAlgorithmException, IOException
     {
         MessageDigest complete = MessageDigest.getInstance("SHA-256");
         byte[] hash = complete.digest(bytes);

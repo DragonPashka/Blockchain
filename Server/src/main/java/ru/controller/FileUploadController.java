@@ -1,5 +1,6 @@
 package ru.controller;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,13 @@ import static ru.chain.Chain.blocks;
 @Slf4j
 @RestController
 @RequestMapping("/upload")
+@Setter
 public class FileUploadController
 {
     private static int size = -5;
+
+    @Autowired
+    private FileUploadService fileUploadService;
 
     @Autowired
     private ResponseJson responseJson;
@@ -51,7 +56,7 @@ public class FileUploadController
             stream.write(bytes);
             stream.close();
             File upload = new File("uploaded");
-            String hash = FileUploadService.createHashFromFile("uploaded");
+            String hash = fileUploadService.createHashFromFile("uploaded");
             size = blocks.size();
             if (!Chain.isFileAdded(hash))
             {
