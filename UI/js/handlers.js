@@ -20,7 +20,7 @@ function requestWrapper({hostname, path, method, headers, port}, sData)
         const sName = JSON.stringify(sData),
               boundary = "xxxxxxxxxx";
         //encoding also helps
-        let data = `--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\nContent-Type:application/octet-stream\r\n\r\n`;
+        let data = `\r\n\r\n--${boundary}\r\nContent-Disposition: form-data; name="file"; filename="${encodeURIComponent(sName.slice(sName.lastIndexOf("\\")+1))}"\r\nContent-Type:application/octet-stream\r\n\r\n`;
         fs.readFile(sData, (oErr, oContent) => {
             var payload, oGlobalErr;
             if(oErr){
@@ -32,7 +32,7 @@ function requestWrapper({hostname, path, method, headers, port}, sData)
             payload = Buffer.concat([
                 Buffer.from(data, "utf8"),
                 new Buffer(oContent, 'binary'),
-                Buffer.from(`\r\n--${boundary}\r\n`, "utf8"),
+                Buffer.from(`\r\n\r\n--${boundary}--`, "utf8"),
             ]);
             const oReq = http.request({
                 hostname: hostname,
@@ -80,6 +80,5 @@ exports.fileUpload = function(aFiles, fResultCb){
         fResultCb(aResults);
     }, (oPromErr)=>{
         fResultCb(oPromErr);
-        debugger
     });
 }

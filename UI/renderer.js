@@ -131,7 +131,7 @@ function showReslts(vResults)
     //getting predefined bootstrap dialog in order not to create the whole structure every time
     const oResDialog = $("#modalDialog"),
           dialogBody = oResDialog.find(".modal-body"),
-          dialogList = oResDialog.find(".list-group");
+          dialogList = oResDialog.find(".list-group").empty();
     if(vResults instanceof Error)
     {
         dialogBody.text(`Ошибка выполнения запроса: ${vResults.message}`);
@@ -140,9 +140,11 @@ function showReslts(vResults)
     {
         vResults.forEach((oElem)=>{
             var bRes = !!oElem.hash,
+                oData = JSON.parse(oElem.data)
                 oSpan = $('<span>', {
                     //displaydifferent badge colors and symbols inside depending on results received
                     "class":`badge badge-${bRes ? 'success' : 'danger'} badge-pill`,
+                    "title": oData.state || oData.error,
                     html: () => {
 
                         if(oElem.statusCode == 200)
@@ -156,7 +158,9 @@ function showReslts(vResults)
         });
         clearQueue();
     }
-    $("#progressDialog").modal('hide');
+    $("#progressDialog").on('hidden.bs.modal', function (e) {
+        oResDialog.modal('show');
+    }).modal('hide');
 }
 
 /**
@@ -170,10 +174,9 @@ $('#checkBtn').click(()=>{
         dialog.showMessageBox({title:"Ошибка загрузки", type: "warning", message:'Нет выбранных файлов'});
         return
     }
-    $("#progressDialog").on('hidden.bs.modal', function (e) {
-        $("#modalDialog").modal('show');
+    $("#progressDialog").off('shown.bs.modal').on('shown.bs.modal', function (e) {
+        fileUpload(oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(), showReslts);
     }).modal('show');
-    fileUpload(oQueue.children().map((iNum, oElem) => $(oElem).children().first().text()).toArray(), showReslts);
 });
 $(window).contextmenu((oEvent) => {
     oEvent.preventDefault();
