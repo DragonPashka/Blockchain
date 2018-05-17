@@ -2,10 +2,12 @@ package ru.chain;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 
+@SpringBootTest
 public class ChainTest
 {
     private Block block;

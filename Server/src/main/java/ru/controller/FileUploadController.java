@@ -6,7 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import ru.chain.Block;
 import ru.chain.Chain;
@@ -29,7 +32,7 @@ import static ru.chain.Chain.blocks;
 @Setter
 public class FileUploadController
 {
-    private static int size = -5;
+    public static int size = -5;
 
     @Autowired
     private FileUploadService fileUploadService;
@@ -92,21 +95,8 @@ public class FileUploadController
 
     }
 
-    /**
-     * handler exception
-     *
-     * @param ex error
-     * @return Json document and request's status
-     */
-    @ExceptionHandler({IOException.class})
-    public ResponseEntity<ResponseJson> handleException(Exception ex)
-    {
-        responseJson.setState("Error " + ex);
-        log.error(ex.toString());
-        responseJson.setHash(null);
-        if (blocks.size() - size == 1)
-            blocks.remove(size);
-        return new ResponseEntity<ResponseJson>(responseJson, HttpStatus.FORBIDDEN);
-    }
+
+
+
 }
 

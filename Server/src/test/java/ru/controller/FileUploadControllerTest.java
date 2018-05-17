@@ -6,7 +6,6 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -27,7 +26,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.chain.Chain.blocks;
 
 @RunWith(MockitoJUnitRunner.class)
-@SpringBootTest
 public class FileUploadControllerTest
 {
     private MockMvc mockMvc;
@@ -77,7 +75,6 @@ public class FileUploadControllerTest
     @Test
     public void testUploadEmptyFile() throws Exception
     {
-        when(fileUploadService.createHashFromFile(any())).thenReturn("123");
         mockMvc.perform(MockMvcRequestBuilders.fileUpload("/upload")
                 .file("file", new byte[0])
                 .contentType(MediaType.MULTIPART_FORM_DATA)

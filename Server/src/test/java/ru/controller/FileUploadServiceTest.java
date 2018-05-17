@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,7 +52,6 @@ public class FileUploadServiceTest
         when(Paths.get(any())).thenReturn(path);
         when(Files.readAllBytes(any())).thenReturn(bytes);
         assertEquals(fileUploadService.createHashFromFile("123"), fileUploadService.createHashFromByte(bytes));
-        PowerMockito.verifyStatic();
     }
 
     @Test(expected = NoSuchFileException.class)

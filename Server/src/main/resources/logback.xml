@@ -28,6 +28,9 @@
     <logger name="ru.controller.FileUploadController" additivity="true" level="debug">
         <appender-ref ref="FileForRest"/>
     </logger>
+    <logger name="ru.responses.FileUploadExceptionAdvice" additivity="true" level="debug">
+        <appender-ref ref="FileForRest"/>
+    </logger>
 
 
 
