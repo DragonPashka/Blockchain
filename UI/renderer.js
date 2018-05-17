@@ -139,8 +139,8 @@ function showReslts(vResults)
     else
     {
         vResults.forEach((oElem)=>{
-            var bRes = !!oElem.hash,
-                oData = JSON.parse(oElem.data)
+            var oData = JSON.parse(oElem.data),
+                bRes = !!oData.hash,
                 oSpan = $('<span>', {
                     //displaydifferent badge colors and symbols inside depending on results received
                     "class":`badge badge-${bRes ? 'success' : 'danger'} badge-pill`,
