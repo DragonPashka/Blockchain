@@ -5,7 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-
+/**
+ * Class for saving a block
+ * @author Pozdnyakov Pavel
+ */
 @Slf4j
 public class Chain
 {

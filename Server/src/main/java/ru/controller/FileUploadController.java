@@ -24,6 +24,7 @@ import java.security.NoSuchAlgorithmException;
 import static ru.chain.Chain.blocks;
 
 /**
+ * Class for upload file
  * @author Pozndyakov Pavel
  */
 @Slf4j
@@ -46,6 +47,7 @@ public class FileUploadController
      * @param file It is a object which we want to upload to server
      * @return Json document and request's status
      * @throws IOException Error if we couldn't upload the file
+     * @throws NoSuchAlgorithmException error if the system unsupported this algoritm hash
      */
     @RequestMapping(method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ResponseJson> uploadFile(@RequestParam("file") MultipartFile file) throws IOException, NoSuchAlgorithmException

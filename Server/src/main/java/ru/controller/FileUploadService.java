@@ -9,15 +9,20 @@ import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Class for createtin a hash from file and string
+ * @author Pozdnyakov Pavel
+ */
 @Service
 public class FileUploadService
 {
     /**
      * create hash from file
      *
-     * @param file - data for creating hash
+     * @param name - name of file, for creating hash
      * @return the string of hash
      * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
+     * @throws IOException error if file not exist
      */
     public String createHashFromFile(String name) throws NoSuchAlgorithmException, IOException
     {
@@ -33,7 +38,7 @@ public class FileUploadService
      * @throws NoSuchAlgorithmException error if algoritm of hash is not valid
      */
 
-    public String createHashFromByte(byte[] bytes) throws NoSuchAlgorithmException, IOException
+    public String createHashFromByte(byte[] bytes) throws NoSuchAlgorithmException
     {
         MessageDigest complete = MessageDigest.getInstance("SHA-256");
         byte[] hash = complete.digest(bytes);

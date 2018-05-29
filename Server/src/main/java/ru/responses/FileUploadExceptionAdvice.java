@@ -11,6 +11,10 @@ import ru.controller.FileUploadController;
 
 import static ru.chain.Chain.blocks;
 
+/**
+ * Class for handling errors
+ * @author Pozdnyakov Pavel
+ */
 @Slf4j
 @ControllerAdvice
 public class FileUploadExceptionAdvice

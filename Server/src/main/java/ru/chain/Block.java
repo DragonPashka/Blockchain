@@ -10,6 +10,10 @@ import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.Date;
 
+/**
+ * Class for saving a hash of file
+ * @author Pozdnyakov Pavel
+ */
 @Getter
 @Setter
 @Slf4j
@@ -39,7 +43,7 @@ public class Block
      * calculated hash of current block
      * @return the string of hash
      * @throws UnsupportedEncodingException error if the system unsupported this encoding
-     * @throws NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException error if the system unsupported this algoritm hash
      */
     public String calculateHash() throws IOException, NoSuchAlgorithmException
     {
@@ -54,7 +58,7 @@ public class Block
      * create hash with current difficulty
      * @param difficulty current difficulty
      * @throws UnsupportedEncodingException error if the system unsupported this encoding
-     * @throws NoSuchAlgorithmException
+     * @throws NoSuchAlgorithmException error if the system unsupported this algoritm hash
      */
     public void mineBlock(int difficulty) throws IOException, NoSuchAlgorithmException
     {
